@@ -1,29 +1,40 @@
 # Configure a project to use Docksal
 
-Docksal is capable of running a project without specifying a configuration for a project. 
-It has a default configuration it will use to build containers and setup a virtual host.
+With Docksal you can initialize a basic LAMP stack with no configuration.   
+In this case the default configuration will be used to provision containers and set up a virtual host.
 
 Initial configuration is done once per project (e.g. by a team lead) and committed into the project repo. 
-Presence of the `.docksal` folder in the project directory is a good indicator a project is already using Docksal.
+Presence of the `.docksal` folder in the project directory is a good indicator the project is using Docksal.
 
 ## Default setup
 
-### 1) Create a project directory.
+1) Create a project directory
 
-`mkdir ~/projects/myproject`  
-`cd ~/projects/myproject`  
+```
+mkdir ~/projects/myproject  
+cd ~/projects/myproject
+```  
 
-### 2) Create an empty `.docksal` directory. All project-specific configurations and commands will be stored in this directory.
+2) Create an empty `.docksal` directory
 
-`mkdir .docksal`
+```
+mkdir .docksal
+```
 
-**Note: git control** 
-> Git does not commit empty directories. To commit it to git create a .gitkeep file inside it:  
-`touch .docksal/.gitkeep`
+All project-specific configurations and commands will be stored in this directory.
 
-### 3) Start the project containers.
+**Note:** Git does not commit empty directories.
+To commit `.docksal` directory to git create a `.gitkeep` file inside it:  
 
-`fin start`
+```
+touch .docksal/.gitkeep
+```
+
+3) Start the project containers
+
+```
+fin start
+```
 
 You should see output like the following:
 
@@ -43,23 +54,30 @@ Connected vhost-proxy to "myproject_default" network.
 
 Your project site is now running. If you visit the project url `http://myproject.docksal` you will get a 404 error, because nothing is there yet!
 
-**Note: SSH keys password:** 
-> If you are being asked for password to SSH keys `id_dsa` or `id_rsa` please know that these are **your** keys that were copied over from your `~/.ssh` folder into SSH Agent's container. That's why their paths looks like `/root/.ssh/...` because that's the path **inside container**. Please provide password(s) if you want to use git or drush commands that require your SSH keys within Docksal (e.g. often project init script or composer script contains repository checkout that would require your key).
+**Note: SSH keys passphrase** 
+If you are asked for the SSH keys passphrase for `id_dsa` or `id_rsa`, 
+please know that these are **your** keys, that were copied over from your `~/.ssh` folder 
+into the `ssh-agent` container. That's why their paths looks like `/root/.ssh/...`, 
+because that's the path **inside the container**. 
+Please provide password(s) if you want to use git or drush commands, that require ssh access within Docksal 
+(e.g. often project init script or composer script contains repository checkout, 
+that would require an ssh key for access).
 
-### 4) Setup document root.
+4) Setup document root
 
-To have a working site, you need to add a document root and start adding files.
+Add a document root and start adding files.
 
 `mkdir docroot`
 
-In this docroot folder you can add any project files you want: a plain HTML, PHP-based CMS or pure PHP project.
+Add any project files you want to `docroot`: plain HTML, PHP-based CMS or pure PHP project.
+
 
 ## Checking the default configuration
 
 If you setup a project using the simplified process above, Docksal handles all the configuration
 behind the scenes. To review the configuration, type `fin config` in your project directory.
 
-You will see output similar to the following:
+You will see an output similar to the following:
 
 ```
 COMPOSE_PROJECT_NAME: myproject
@@ -132,22 +150,24 @@ volumes:
 
 Notice it displays the virtual host name it will use, which is based on your
 project's directory name, and it displays the MySQL user name and password if
-you need to setup a database.
+you need to configure database access.
 
-It also displays the setup for the three Docker containers it will use; cli, db, and web.
+It also displays the configuration for the default LAMP stack containers: cli, db, and web.
 
-## Customizing a configuration
 
-If you need to customize your project's Docksal setup, there is a command to 
-build the initial configuration files.
+## Customizing the stack configuration
 
-`fin config generate`
+To customize the project's Docksal stack, you first have generate the config files:
 
-This will save the configuration to two files in the projects `.docksal` directory.
+```
+fin config generate
+```
 
-- `docksal.env` - this is for environment specific configuration, like setting the document root
+This will generate two files in the `.docksal` directory inside the project:
+
+- `docksal.env` - used for environment specific configuration, like setting the document root
 or hostname.
-- `docksal.yml` - this is for Docker specific configuration, like adding or removing services.
+- `docksal.yml` - used for Docker specific configuration, like adding or removing services.
 
 
 ## Automate the initialization process
@@ -155,7 +175,9 @@ or hostname.
 This is optional, but highly recommended.
 
 Site provisioning can be automated via a [custom command](custom-commands.md).  
-E.g. `fin init`, which will call `.docksal/commands/init`. Put project specific initialization tasks there, like:
+E.g. `fin init`, which will call `.docksal/commands/init`.
+
+Put project specific initialization tasks there, like:
 
 - initialize Docksal configuration
 - import database or perform a site install
